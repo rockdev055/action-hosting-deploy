@@ -91,9 +91,7 @@ async function execWithCredentials(
     }
   }
 
-  return deployOutputBuf.length
-    ? deployOutputBuf[deployOutputBuf.length - 1].toString("utf-8")
-    : ""; // output from the CLI
+  return Buffer.concat(deployOutputBuf).toString("utf-8"); // output from the CLI
 }
 
 export async function deploy(gacFilename: string, deployConfig: DeployConfig) {
@@ -101,7 +99,11 @@ export async function deploy(gacFilename: string, deployConfig: DeployConfig) {
 
   const deploymentText = await execWithCredentials(
     "npx firebase-tools",
-    ["hosting:channel:deploy", channelId],
+    [
+      "hosting:channel:deploy",
+      channelId,
+      ...(expires ? ["--expires", expires] : []),
+    ],
     projectId,
     gacFilename
   );
